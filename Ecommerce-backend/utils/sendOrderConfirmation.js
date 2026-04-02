@@ -11,6 +11,7 @@ const sendOrderConfirmation = async ({
   const transport = createTransport({
     host: "smtp.gmail.com",
     port: 465,
+    secure: true,
     auth: {
       user: process.env.MAIL_USER,
       pass: process.env.MAIL_PASS,
@@ -46,12 +47,17 @@ const sendOrderConfirmation = async ({
     </div>
   `;
 
-  await transport.sendMail({
-    from: `"V-Retail Official" <${process.env.MAIL_USER}>`,
-    to: email,
-    subject,
-    html: mailTemplate({ title, content }),
-  });
+  try {
+    await transport.sendMail({
+      from: `"V-Retail Official" <${process.env.MAIL_USER}>`,
+      to: email,
+      subject,
+      html: mailTemplate({ title, content }),
+    });
+    console.log(`[MAIL] Order confirmation email sent to ${email}`);
+  } catch (error) {
+    console.error(`[MAIL_ERROR] Could not send order email to ${email}:`, error);
+  }
 };
 
 export default sendOrderConfirmation;

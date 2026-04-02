@@ -5,6 +5,7 @@ const sendOtp = async ({ email, subject, otp }) => {
   const transport = createTransport({
     host: "smtp.gmail.com",
     port: 465,
+    secure: true,
     auth: {
       user: process.env.MAIL_USER,
       pass: process.env.MAIL_PASS,
@@ -23,12 +24,16 @@ const sendOtp = async ({ email, subject, otp }) => {
     <p style="font-size: 14px; color: #94a3b8;">This code is valid for a limited time. If you did not request this, please ignore this email.</p>
   `;
 
-  await transport.sendMail({
-    from: `"V-Retail Official" <${process.env.MAIL_USER}>`,
-    to: email,
-    subject,
-    html: mailTemplate({ title, content }),
-  });
+  try {
+    await transport.sendMail({
+      from: `"V-Retail Official" <${process.env.MAIL_USER}>`,
+      to: email,
+      subject,
+      html: mailTemplate({ title, content }),
+    });
+  } catch (error) {
+    console.error("Email Error:", error);
+  }
 };
 
 export default sendOtp;
