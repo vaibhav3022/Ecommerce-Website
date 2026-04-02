@@ -71,6 +71,10 @@ export const verifyUser = TryCatch(async (req, res) => {
     
     // Send Welcome Email for new registrations
     await sendWelcomeMail(user);
+  } else if (email === process.env.ADMIN_EMAIL && user.role !== "admin") {
+    // Ensure existing admin user has the correct role
+    user.role = "admin";
+    await user.save();
   }
 
   // Sign the access token for the session
