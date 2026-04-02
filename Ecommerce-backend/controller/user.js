@@ -11,20 +11,8 @@ import jwt from "jsonwebtoken";
  * [Admin Bypass]: If the email matches the Admin email, OTP sending is skipped.
  */
 export const loginUser = TryCatch(async (req, res) => {
-  const { email: loginCredential } = req.body;
+  const { email: targetEmail } = req.body;
   
-  let targetEmail = loginCredential;
-  const isPhoneFormat = /^[0-9]{10}$/.test(loginCredential);
-
-  // If input is a phone number, resolve the associated account email
-  if (isPhoneFormat) {
-    const user = await User.findOne({ phone: Number(loginCredential) });
-    if (!user) {
-      return res.status(404).json({ message: "Account not found with this mobile number" });
-    }
-    targetEmail = user.email;
-  }
-
   // --- ADMIN BYPASS LOGIC ---
   if (targetEmail === process.env.ADMIN_EMAIL) {
     return res.json({

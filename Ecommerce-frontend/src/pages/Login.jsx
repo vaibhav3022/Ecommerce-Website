@@ -33,17 +33,17 @@ const Login = () => {
           </div>
           <CardTitle className="text-3xl font-black tracking-tight mb-3">Welcome Back</CardTitle>
           <CardDescription className="text-base font-medium px-4">
-            Enter your email or 10-digit mobile number to receive a secure access code.
+            Enter your email address to receive a secure access code.
           </CardDescription>
         </CardHeader>
 
         <form onSubmit={submitHandler}>
           <CardContent className="px-10 space-y-6">
             <div className="space-y-3">
-              <Label className="text-xs font-black uppercase tracking-widest text-muted-foreground ml-1">Email or Mobile Number</Label>
+              <Label className="text-xs font-black uppercase tracking-widest text-muted-foreground ml-1">Email Address</Label>
               <Input
-                type="text"
-                placeholder="Email or 10-digit number"
+                type="email"
+                placeholder="Enter your email"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 required
