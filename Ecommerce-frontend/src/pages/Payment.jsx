@@ -236,6 +236,8 @@ const Payment = () => {
                     <div className="flex items-center gap-3">
                       <Loading className="h-5 w-5" /> Processing...
                     </div>
+                  ) : method === "cod" ? (
+                    "Place Order"
                   ) : (
                     `Pay ₹${subTotal.toLocaleString()} Now`
                   )}
