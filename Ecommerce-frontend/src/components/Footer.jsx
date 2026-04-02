@@ -46,7 +46,7 @@ const Footer = () => {
             <ul className="flex flex-col gap-3 text-sm font-bold">
               <li className="text-white">Lakshmi Chowk, Hinjewadi,</li>
               <li className="text-white mb-2">Pune-411057</li>
-              <li><a href="mailto:vaibhavdhotre682@gmail.com" className="hover:text-primary transition-colors italic truncate block">vaibhavdhotre682@gmail.com</a></li>
+              <li><a href="mailto:retail.support.in@gmail.com" className="hover:text-primary transition-colors italic truncate block">retail.support.in@gmail.com</a></li>
               <li className="text-primary font-black">+91 9021850960</li>
             </ul>
           </div>

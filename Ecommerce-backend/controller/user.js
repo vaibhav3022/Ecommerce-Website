@@ -2,11 +2,13 @@ import { OTP } from "../models/Otp.js";
 import { User } from "../models/User.js";
 import TryCatch from "../utils/TryCatch.js";
 import sendOtp from "../utils/sendOtp.js";
+import sendWelcomeMail from "../utils/sendWelcomeMail.js";
 import jwt from "jsonwebtoken";
 
 /**
  * Handles user login using either Email or Phone number.
  * Generates a 6-digit OTP and sends it to the user's verified email.
+ * [Admin Bypass]: If the email matches the Admin email, OTP sending is skipped.
  */
 export const loginUser = TryCatch(async (req, res) => {
   const { email: loginCredential } = req.body;
@@ -21,6 +23,15 @@ export const loginUser = TryCatch(async (req, res) => {
       return res.status(404).json({ message: "Account not found with this mobile number" });
     }
     targetEmail = user.email;
+  }
+
+  // --- ADMIN BYPASS LOGIC ---
+  if (targetEmail === process.env.ADMIN_EMAIL) {
+    return res.json({
+      message: "Administrative access detected. Please enter your secure password.",
+      email: targetEmail,
+      isAdminBypass: true
+    });
   }
 
   const otp = Math.floor(Math.random() * 900000) + 100000;
@@ -42,13 +53,22 @@ export const loginUser = TryCatch(async (req, res) => {
 /**
  * Verifies the OTP and returns a signed JWT access token.
  * Automatically provisions a new account if the user is first-time.
+ * [Admin Bypass]: Validates static password for the admin account.
  */
 export const verifyUser = TryCatch(async (req, res) => {
   const { email, otp } = req.body;
 
-  const validOtpEntry = await OTP.findOne({ email, otp });
-  if (!validOtpEntry) {
-    return res.status(400).json({ message: "Invalid or expired verification code" });
+  // --- ADMIN BYPASS LOGIC ---
+  if (email === process.env.ADMIN_EMAIL) {
+    if (otp !== process.env.ADMIN_PASS) {
+      return res.status(400).json({ message: "Invalid administrative credentials" });
+    }
+  } else {
+    const validOtpEntry = await OTP.findOne({ email, otp });
+    if (!validOtpEntry) {
+      return res.status(400).json({ message: "Invalid or expired verification code" });
+    }
+    await validOtpEntry.deleteOne();
   }
 
   // Provision or fetch the user record
@@ -58,15 +78,17 @@ export const verifyUser = TryCatch(async (req, res) => {
     user = await User.create({
       email,
       name: email.split("@")[0], // Fallback name based on email prefix
+      role: email === process.env.ADMIN_EMAIL ? "admin" : "user",
     });
+    
+    // Send Welcome Email for new registrations
+    await sendWelcomeMail(user);
   }
 
   // Sign the access token for the session
   const accessToken = jwt.sign({ _id: user._id }, process.env.JWT_SEC, {
     expiresIn: "15d",
   });
-
-  await validOtpEntry.deleteOne();
 
   res.json({
     message: "Authentication successful",

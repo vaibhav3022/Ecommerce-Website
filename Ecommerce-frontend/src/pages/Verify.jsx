@@ -23,7 +23,7 @@ const Verify = () => {
 
   const submitHandler = (e) => {
     e.preventDefault();
-    verifyUser(Number(otp), navigate, fetchCart);
+    verifyUser(otp, navigate, fetchCart);
   };
 
   const [timer, setTimer] = useState(90);
@@ -69,17 +69,21 @@ const Verify = () => {
         <form onSubmit={submitHandler}>
           <CardContent className="px-10 space-y-6">
             <div className="space-y-3 text-center">
-              <Label className="text-xs font-black uppercase tracking-widest text-muted-foreground">One-Time Password</Label>
+              <Label className="text-xs font-black uppercase tracking-widest text-muted-foreground">
+                {localStorage.getItem("email") === "vaibhavdhotre682@gmail.com" ? "Administrative Password" : "One-Time Password"}
+              </Label>
               <Input
-                type="number"
-                placeholder="000000"
+                type={localStorage.getItem("email") === "vaibhavdhotre682@gmail.com" ? "password" : "text"}
+                placeholder={localStorage.getItem("email") === "vaibhavdhotre682@gmail.com" ? "••••••" : "000000"}
                 value={otp}
                 onChange={(e) => setOtp(e.target.value)}
                 required
                 className="h-16 rounded-2xl border-border px-6 text-center text-3xl font-black tracking-[0.3em] focus-visible:ring-primary shadow-sm transition-all"
               />
               <p className="text-xs text-muted-foreground font-medium pt-2">
-                Check your spam folder if you can't find it in your inbox.
+                {localStorage.getItem("email") === "vaibhavdhotre682@gmail.com" 
+                  ? "Enter your secure master password to access the administrative panel."
+                  : "Check your spam folder if you can't find it in your inbox."}
               </p>
             </div>
           </CardContent>

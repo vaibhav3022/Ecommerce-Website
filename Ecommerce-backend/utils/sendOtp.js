@@ -1,4 +1,5 @@
 import { createTransport } from "nodemailer";
+import { mailTemplate } from "./mailTemplate.js";
 
 const sendOtp = async ({ email, subject, otp }) => {
   const transport = createTransport({
@@ -10,57 +11,23 @@ const sendOtp = async ({ email, subject, otp }) => {
     },
   });
 
-  const html = `<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>OTP Verification</title>
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            margin: 0;
-            padding: 0;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            height: 100vh;
-        }
-        .container {
-            background-color: #fff;
-            padding: 20px;
-            border-radius: 8px;
-            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-            text-align: center;
-        }
-        h1 {
-            color: red;
-        }
-        p {
-            margin-bottom: 20px;
-            color: #666;
-        }
-        .otp {
-            font-size: 36px;
-            color: #7b68ee;
-            margin-bottom: 30px;
-        }
-    </style>
-</head>
-<body>
-    <div class="container">
-        <h1>OTP Verification</h1>
-        <p>Hello ${email}, your One-Time Password for account verification is:</p>
-        <p class="otp">${otp}</p>
+  const title = "Authentication Security Code";
+  const content = `
+    <p>We've received a request for a secure access code for your account at <strong>${email}</strong>.</p>
+    <p>Please enter the following 6-digit verification code to proceed:</p>
+    <div style="text-align: center; margin: 40px 0;">
+        <div style="font-size: 42px; font-weight: 900; color: #7b68ee; letter-spacing: 5px; background: #f8f9fa; padding: 20px; border-radius: 16px; display: inline-block;">
+            ${otp}
+        </div>
     </div>
-</body>
-</html>`;
+    <p style="font-size: 14px; color: #94a3b8;">This code is valid for a limited time. If you did not request this, please ignore this email.</p>
+  `;
 
   await transport.sendMail({
-    from: `"V-Retail Masterpiece" <${process.env.MAIL_USER}>`,
+    from: `"V-Retail Official" <${process.env.MAIL_USER}>`,
     to: email,
     subject,
-    html,
+    html: mailTemplate({ title, content }),
   });
 };
 

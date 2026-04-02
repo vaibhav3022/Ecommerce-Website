@@ -1,4 +1,5 @@
 import { createTransport } from "nodemailer";
+import { mailTemplate } from "./mailTemplate.js";
 
 const sendOrderConfirmation = async ({
   email,
@@ -19,93 +20,37 @@ const sendOrderConfirmation = async ({
   const productsHtml = products
     .map(
       (product) => `
-            <tr>
-                <td style="padding: 10px; border: 1px solid #ddd;">${product.name}</td>
-                <td style="padding: 10px; border: 1px solid #ddd;">${product.quantity}</td>
-                <td style="padding: 10px; border: 1px solid #ddd;">₹${product.price}</td>
-            </tr>
+            <div style="padding: 15px; background: #f8f9fa; border-radius: 12px; margin-bottom: 15px; border: 1px solid #f0f0f0;">
+                <div style="font-weight: 700; color: #06061a;">${product.name}</div>
+                <div style="font-size: 13px; color: #64748b;">Quantity: ${product.quantity} | Unit Price: ₹${product.price}</div>
+            </div>
         `
     )
     .join("");
 
-  const html = `<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Order Confirmation</title>
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            margin: 0;
-            padding: 0;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            background-color: #f9f9f9;
-            height: 100vh;
-        }
-        .container {
-            background-color: #fff;
-            padding: 20px;
-            border-radius: 8px;
-            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-            text-align: center;
-        }
-        h1 {
-            color: #4caf50;
-        }
-        p {
-            color: #333;
-        }
-        table {
-            width: 100%;
-            border-collapse: collapse;
-            margin: 20px 0;
-        }
-        th, td {
-            padding: 10px;
-            border: 1px solid #ddd;
-            text-align: left;
-        }
-        th {
-            background-color: #f2f2f2;
-        }
-        .total {
-            font-size: 18px;
-            font-weight: bold;
-            color: #000;
-        }
-    </style>
-</head>
-<body>
-    <div class="container">
-        <h1>Order Confirmation</h1>
-        <p>Dear ${email},</p>
-        <p>Your order (ID: <strong>${orderId}</strong>) has been successfully placed.</p>
-        <table>
-            <thead>
-                <tr>
-                    <th>Product</th>
-                    <th>Quantity</th>
-                    <th>Price</th>
-                </tr>
-            </thead>
-            <tbody>
-                ${productsHtml}
-            </tbody>
-        </table>
-        <p class="total">Total Amount: ₹${totalAmount}</p>
-        <p>Thank you for shopping with us!</p>
+  const title = "Order Confirmed | V-Retail";
+  const content = `
+    <p>Dear <strong>${email}</strong>,</p>
+    <p>Your order has been successfully placed and is now being prepared for shipping.</p>
+    
+    <div style="margin: 30px 0;">
+        <div style="font-size: 11px; text-transform: uppercase; letter-spacing: 1px; color: #94a3b8; margin-bottom: 5px;">Order ID</div>
+        <div style="font-weight: 700; color: #06061a;">#${orderId}</div>
     </div>
-</body>
-</html>`;
+
+    ${productsHtml}
+
+    <div style="margin-top: 30px; padding-top: 20px; border-top: 2px dashed #f1f5f9; display: flex; justify-content: space-between; align-items: center;">
+        <div style="font-weight: 700; color: #64748b;">Total Amount</div>
+        <div style="font-size: 24px; font-weight: 900; color: #7b68ee;">₹${totalAmount}</div>
+    </div>
+  `;
 
   await transport.sendMail({
-    from: `"V-Retail Masterpiece" <${process.env.MAIL_USER}>`,
+    from: `"V-Retail Official" <${process.env.MAIL_USER}>`,
     to: email,
     subject,
-    html,
+    html: mailTemplate({ title, content }),
   });
 };
 
