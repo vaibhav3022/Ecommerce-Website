@@ -41,16 +41,21 @@ const OrderProcessing = () => {
         );
 
         if (data.success) {
-          toast.success("Order Placed successfully");
+          toast.success(data.message || "Order Placed successfully");
           setPaymentVerified(true);
           fetchCart();
           setLoading(false);
-          // Redirect after a short delay to let them see the success screen
         }
       } catch (error) {
-        toast.error("Payment verification failed. Please try again.");
-        navigate("/cart");
-        console.log(error);
+        const errorMsg = error.response?.data?.message || "Payment verification failed. Please contact support.";
+        toast.error(errorMsg);
+        console.error("Verification Error:", error);
+        
+        // If it's a 400 error (like empty cart), it might be a race condition or already processed
+        // We'll give it 3 seconds before redirecting
+        setTimeout(() => {
+            navigate("/cart");
+        }, 3000);
       }
     };
 

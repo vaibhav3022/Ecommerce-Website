@@ -244,14 +244,18 @@ export const verifyPayment = TryCatch(async (req, res) => {
 
   const { userId, method, phone, address, subTotal } = stripeSession.metadata;
 
-  // Check if order already exist to prevent duplicate processing (webhooks should ideally handle this)
+  console.log(`[VERIFY_PAYMENT] Session ${sessionId} retrieved for User ${userId}`);
+
+  // Check if order already exist to prevent duplicate processing
   const orderExists = await Order.findOne({ paymentInfo: sessionId });
   if (orderExists) {
-    return res.status(200).json({ message: "Order already fulfilled", order: orderExists });
+    console.log(`[VERIFY_PAYMENT] Order already fulfilled for session ${sessionId}`);
+    return res.status(200).json({ success: true, message: "Order already fulfilled", order: orderExists });
   }
 
   const activeCart = await Cart.find({ user: userId }).populate("product");
   if (!activeCart.length) {
+    console.error(`[VERIFY_PAYMENT] Cart empty for User ${userId}. Verification aborted.`);
     return res.status(400).json({ message: "Invalid order state: Cart cleared or empty" });
   }
 
@@ -268,11 +272,13 @@ export const verifyPayment = TryCatch(async (req, res) => {
     user: userId,
     phone,
     address,
-    subTotal,
+    subTotal: Number(subTotal),
     paidAt: new Date(),
     paymentInfo: sessionId,
     status: "Placed"
   });
+
+  console.log(`[VERIFY_PAYMENT] Order ${order._id} created successfully.`);
 
   // Inventory Synchronization
   for (let item of order.items) {
@@ -284,13 +290,18 @@ export const verifyPayment = TryCatch(async (req, res) => {
   // Final Cleanup
   await Cart.deleteMany({ user: userId });
 
-  await sendOrderConfirmation({
-    email: req.user.email,
-    subject: "V-Retail | Payment Successful",
-    orderId: order._id,
-    products: orderLineItems,
-    totalAmount: subTotal,
-  });
+  // Use a targeted email if req.user is missing (e.g. from a webhook/direct hit)
+  const targetEmail = req.user?.email || (await User.findById(userId))?.email;
+
+  if (targetEmail) {
+    await sendOrderConfirmation({
+      email: targetEmail,
+      subject: "V-Retail | Payment Successful",
+      orderId: order._id,
+      products: orderLineItems,
+      totalAmount: subTotal,
+    });
+  }
 
   res.status(201).json({
     success: true,
