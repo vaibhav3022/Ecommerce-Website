@@ -1,4 +1,4 @@
-import { Facebook, Twitter, Youtube, Briefcase, HelpCircle, Gift, Star } from "lucide-react";
+import { Facebook, Twitter, Youtube, Briefcase, HelpCircle, Gift, Star, Instagram, Linkedin } from "lucide-react";
 import React from "react";
 import { Link } from "react-router-dom";
 
@@ -19,13 +19,13 @@ const Footer = () => {
              </p>
               <div className="flex gap-4">
                 <a href="https://www.linkedin.com/in/vaibhav-dhotre-96b83a224/" target="_blank" rel="noreferrer" className="w-10 h-10 rounded-xl bg-white/5 flex items-center justify-center hover:bg-primary hover:text-white transition-all cursor-pointer">
-                   <Twitter size={18} />
+                   <Linkedin size={18} />
                 </a>
                 <a href="https://vaibhavdhotre-portfolio.vercel.app/" target="_blank" rel="noreferrer" className="w-10 h-10 rounded-xl bg-white/5 flex items-center justify-center hover:bg-primary hover:text-white transition-all cursor-pointer text-xs font-black uppercase tracking-tighter">
                    PORT
                 </a>
-                <a href="https://instagram.com" target="_blank" rel="noreferrer" className="w-10 h-10 rounded-xl bg-white/5 flex items-center justify-center hover:bg-primary hover:text-white transition-all cursor-pointer">
-                   <Facebook size={18} />
+                <a href="https://www.instagram.com/iam_vaibhavdhotre?igsh=MXMxN3kwdjBkcXdsMA==" target="_blank" rel="noreferrer" className="w-10 h-10 rounded-xl bg-white/5 flex items-center justify-center hover:bg-primary hover:text-white transition-all cursor-pointer">
+                   <Instagram size={18} />
                 </a>
              </div>
           </div>
