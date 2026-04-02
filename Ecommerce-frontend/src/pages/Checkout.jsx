@@ -54,7 +54,7 @@ const Checkout = () => {
   const handleAddAddress = async () => {
     try {
       const { data } = await axios.post(
-        `${server}/api/address/add`,
+        `${server}/api/address/new`,
         newAddress,
         {
           headers: {

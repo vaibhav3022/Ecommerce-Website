@@ -76,7 +76,7 @@ const Profile = () => {
   const handleAddAddress = async (e) => {
     e.preventDefault();
     try {
-      const { data } = await axios.post(`${server}/api/address/add`, addressFormData, {
+      const { data } = await axios.post(`${server}/api/address/new`, addressFormData, {
         headers: { token: Cookies.get("token") }
       });
       toast.success(data.message);
