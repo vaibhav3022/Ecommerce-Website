@@ -60,7 +60,9 @@ const Navbar = () => {
               <div className="w-8 h-8 rounded-full bg-slate-100 flex items-center justify-center group-hover:bg-primary/10 transition-colors">
                 <User className="w-4 h-4 group-hover:text-primary transition-colors" /> 
               </div>
-              <span className="hidden sm:block text-slate-700">{isAuth ? user.name?.split(' ')[0] : 'Account'}</span>
+              <span className="hidden sm:block text-slate-700">
+                {isAuth ? `Hi, ${user.name?.split(' ')[0].charAt(0).toUpperCase() + user.name?.split(' ')[0].slice(1)}` : 'Account'}
+              </span>
               <ChevronDown className="w-3.5 h-3.5 hidden sm:block opacity-40 group-hover:opacity-100 transition-opacity" />
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end" className="w-64 mt-3 rounded-2xl shadow-2xl p-2.5 font-medium overflow-hidden border border-slate-100/50 backdrop-blur-md bg-white/95">
