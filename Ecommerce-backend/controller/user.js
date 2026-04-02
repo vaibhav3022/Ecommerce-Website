@@ -11,14 +11,19 @@ import jwt from "jsonwebtoken";
  * [Admin Bypass]: If the email matches the Admin email, OTP sending is skipped.
  */
 export const loginUser = TryCatch(async (req, res) => {
-  const { email: targetEmail } = req.body;
+  const { email: rawEmail } = req.body;
+  const targetEmail = rawEmail?.trim().toLowerCase();
   
+  // Use environment variables or hardcoded fallback for safety
+  const adminEmail = process.env.ADMIN_EMAIL?.trim().toLowerCase() || "vaibhavdhotre682@gmail.com";
+
   // --- ADMIN BYPASS LOGIC ---
-  if (targetEmail === process.env.ADMIN_EMAIL) {
+  if (targetEmail === adminEmail) {
+    console.log(`[AUTH] Admin bypass triggered for ${targetEmail}`);
     return res.json({
-      message: "Administrative access detected. Please enter your secure password.",
+      message: "Administrative access detected. Please enter your master password.",
       email: targetEmail,
-      isAdminBypass: true
+      isAdminBypass: true,
     });
   }
 
@@ -44,19 +49,26 @@ export const loginUser = TryCatch(async (req, res) => {
  * [Admin Bypass]: Validates static password for the admin account.
  */
 export const verifyUser = TryCatch(async (req, res) => {
-  const { email, otp } = req.body;
+  const { otp, email: rawEmail } = req.body;
+  const email = rawEmail?.trim().toLowerCase();
 
-  // --- ADMIN BYPASS LOGIC ---
-  if (email === process.env.ADMIN_EMAIL) {
-    if (otp !== process.env.ADMIN_PASS) {
-      return res.status(400).json({ message: "Invalid administrative credentials" });
+  // Load fallback values
+  const adminEmail = process.env.ADMIN_EMAIL?.trim().toLowerCase() || "vaibhavdhotre682@gmail.com";
+  const adminPass = process.env.ADMIN_PASS || "123456";
+
+  // --- ADMIN BYPASS VERIFICATION ---
+  if (email === adminEmail) {
+    if (otp !== adminPass) {
+      return res.status(403).json({ message: "Invalid administrative password" });
     }
   } else {
-    const validOtpEntry = await OTP.findOne({ email, otp });
-    if (!validOtpEntry) {
+    // Normal user OTP verification
+    const otpUser = await OTP.findOne({ email });
+    if (!otpUser || otpUser.otp !== otp) {
       return res.status(400).json({ message: "Invalid or expired verification code" });
     }
-    await validOtpEntry.deleteOne();
+    // Clean up used OTP
+    await otpUser.deleteOne();
   }
 
   // Provision or fetch the user record
